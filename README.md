@@ -1,34 +1,78 @@
-# Real-time Sentiment Intelligence Dashboard 📊
+# Real-time Sentiment Intelligence Dashboard
 
-[![CI](https://github.com/konaaravind4/Real-time-Sentiment-Intelligence-Dashboard/actions/workflows/ci.yml/badge.svg)](https://github.com/konaaravind4/Real-time-Sentiment-Intelligence-Dashboard/actions/workflows/ci.yml)
-![Python](https://img.shields.io/badge/python-3.11-blue)
-![Kafka](https://img.shields.io/badge/kafka-3.x-black)
-![RoBERTa](https://img.shields.io/badge/model-distilroberta-green)
+Live 8-class emotion classification across social streams using a fine-tuned **RoBERTa** model, with real-time WebSocket updates and REST API.
 
-Live sentiment + emotion detection across social streams with 8-class RoBERTa, Apache Kafka, Redis time-series, and WebSocket dashboard.
+## Features
 
-## 🏗️ Architecture
+- 🧠 **8-class emotion detection** — joy, anger, fear, surprise, sadness, disgust, contempt, neutral
+- ⚡ **Real-time WebSocket stream** — live emotion scoring with <340ms P99 latency
+- 📊 **12K msg/s throughput** — Kafka-backed stream processing
+- 🚀 **FastAPI REST + WebSocket API** — `/classify`, `/classify/batch`, `/ws/stream`
+- 📦 **Docker-ready** — one-command deployment
+
+## Architecture
+
 ```
-Social Feed (Kafka Producer)
-      │  10K msg/s
-      ▼
-Kafka Topic: social-feed
-      │
-      ▼
-SentimentConsumer (batch=64)
-  └─► EmotionClassifier (DistilRoBERTa, 8-class)
-      │ scores
-      ▼
-Redis Time-Series (30-min rolling window)
-      │
-      ▼
-FastAPI WebSocket Server
-  ├── /ws/live  ← push every 2s
-  ├── /analyze  ← on-demand
-  └── /stats/*  ← aggregated emotion + platform counts
+Social API → Kafka Producer → RoBERTa Classifier → Redis Time-Series → WebSocket → Dashboard
 ```
 
-## 📊 Metrics
+## Quick Start
+
+```bash
+git clone https://github.com/konaaravind4/Real-time-Sentiment-Intelligence-Dashboard
+cd Real-time-Sentiment-Intelligence-Dashboard
+cp .env.example .env
+pip install -r requirements.txt
+uvicorn api.main:app --host 0.0.0.0 --port 8000
+```
+
+## Docker
+
+```bash
+docker build -t sentiment-dashboard .
+docker run -p 8000:8000 \
+  -e MODEL_NAME=SamLowe/roberta-base-go_emotions \
+  sentiment-dashboard
+```
+
+## API Usage
+
+```bash
+# Classify one text
+curl -X POST http://localhost:8000/classify \
+  -H "Content-Type: application/json" \
+  -d '{"text": "This product is absolutely amazing!"}'
+
+# Batch classify
+curl -X POST http://localhost:8000/classify/batch \
+  -H "Content-Type: application/json" \
+  -d '{"texts": ["I love this!", "This is terrible."]}'
+```
+
+## WebSocket Stream
+
+```python
+import asyncio, websockets, json
+
+async def stream():
+    async with websockets.connect("ws://localhost:8000/ws/stream") as ws:
+        await ws.send("I absolutely love this new feature!")
+        result = json.loads(await ws.recv())
+        print(result)  # {"top_emotion": "joy", "top_score": 0.94, ...}
+
+asyncio.run(stream())
+```
+
+## Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `MODEL_NAME` | `SamLowe/roberta-base-go_emotions` | HuggingFace model ID |
+| `REDIS_URL` | `redis://localhost:6379` | Redis connection URL |
+| `KAFKA_BOOTSTRAP` | `localhost:9092` | Kafka bootstrap servers |
+
+## Metrics
+
 | Metric | Value |
 |--------|-------|
 | Throughput | 12K msg/s |
@@ -36,25 +80,10 @@ FastAPI WebSocket Server
 | Latency P99 | 340ms |
 | Update Interval | 2s |
 
-## 🚀 Quick Start
-```bash
-git clone https://github.com/konaaravind4/Real-time-Sentiment-Intelligence-Dashboard.git
-cd Real-time-Sentiment-Intelligence-Dashboard
-docker-compose up --build
-```
+## Tech Stack
 
-- API: http://localhost:8003
-- WebSocket: ws://localhost:8003/ws/live
+`Python` · `Transformers` · `RoBERTa` · `Apache Kafka` · `Redis` · `FastAPI` · `WebSocket` · `Docker`
 
-## 📁 Structure
-```
-├── ml/
-│   └── emotion_classifier.py   # DistilRoBERTa 8-class pipeline
-├── stream/
-│   ├── kafka_producer.py       # Social feed simulator
-│   └── kafka_consumer.py       # Batch consumer + Redis store
-├── api/
-│   └── main.py                 # FastAPI + WebSocket server
-└── tests/
-    └── test_classifier.py
-```
+## License
+
+MIT

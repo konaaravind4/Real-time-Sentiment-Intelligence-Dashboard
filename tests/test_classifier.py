@@ -1,70 +1,70 @@
 """
-Tests for Sentiment Dashboard — emotion classifier logic and stream consumer.
+tests/test_classifier.py — Unit tests for emotion classifier (no model download).
 """
-from __future__ import annotations
 
 import pytest
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
+
+
+class TestEmotionResult:
+    def test_fields(self):
+        from ml.classifier import EmotionResult
+        r = EmotionResult(
+            text="I love this!",
+            top_emotion="joy",
+            top_score=0.95,
+            all_scores={"joy": 0.95, "neutral": 0.05},
+            latency_ms=12.3,
+        )
+        assert r.top_emotion == "joy"
+        assert r.top_score == 0.95
 
 
 class TestEmotionClassifier:
-    @patch("ml.emotion_classifier.pipeline")
-    def test_classify_returns_emotion_result(self, mock_pipeline_fn):
-        from ml.emotion_classifier import EmotionClassifier, EmotionResult
+    def test_classify_with_mock_pipeline(self):
+        from ml.classifier import EmotionClassifier
 
+        clf = EmotionClassifier()
         mock_pipeline = MagicMock()
         mock_pipeline.return_value = [[
-            {"label": "joy", "score": 0.85},
-            {"label": "neutral", "score": 0.10},
-            {"label": "anger", "score": 0.05},
-        ]]
-        mock_pipeline_fn.return_value = mock_pipeline
-
-        classifier = EmotionClassifier()
-        result = classifier.classify("I love this!")
-
-        assert isinstance(result, EmotionResult)
-        assert result.top_emotion == "joy"
-        assert result.sentiment == "positive"
-        assert result.top_score == pytest.approx(0.85)
-
-    @patch("ml.emotion_classifier.pipeline")
-    def test_classify_anger_is_negative(self, mock_pipeline_fn):
-        from ml.emotion_classifier import EmotionClassifier
-
-        mock_pipeline = MagicMock()
-        mock_pipeline.return_value = [[
-            {"label": "anger", "score": 0.90},
-            {"label": "joy", "score": 0.05},
+            {"label": "joy", "score": 0.92},
             {"label": "neutral", "score": 0.05},
+            {"label": "anger", "score": 0.03},
         ]]
-        mock_pipeline_fn.return_value = mock_pipeline
+        clf._pipeline = mock_pipeline
 
-        classifier = EmotionClassifier()
-        result = classifier.classify("This is terrible!")
-        assert result.sentiment == "negative"
-        assert result.top_emotion == "anger"
+        result = clf.classify("This is amazing!")
+        assert result.top_emotion == "joy"
+        assert result.top_score == 0.92
+        assert "joy" in result.all_scores
 
-    @patch("ml.emotion_classifier.pipeline")
-    def test_classify_batch(self, mock_pipeline_fn):
-        from ml.emotion_classifier import EmotionClassifier
+    def test_classify_raises_when_not_loaded(self):
+        from ml.classifier import EmotionClassifier
+        clf = EmotionClassifier()
+        with pytest.raises(RuntimeError, match="not loaded"):
+            clf.classify("test")
 
+    def test_classify_batch(self):
+        from ml.classifier import EmotionClassifier
+
+        clf = EmotionClassifier()
         mock_pipeline = MagicMock()
-        mock_pipeline.return_value = [
-            [{"label": "joy", "score": 0.9}, {"label": "neutral", "score": 0.1}],
-            [{"label": "sadness", "score": 0.8}, {"label": "joy", "score": 0.2}],
-        ]
-        mock_pipeline_fn.return_value = mock_pipeline
+        mock_pipeline.return_value = [[{"label": "joy", "score": 0.9}, {"label": "neutral", "score": 0.1}]]
+        clf._pipeline = mock_pipeline
 
-        classifier = EmotionClassifier()
-        results = classifier.classify_batch(["Great!", "Terrible."])
+        results = clf.classify_batch(["text1", "text2"])
         assert len(results) == 2
-        assert results[0].top_emotion == "joy"
-        assert results[1].top_emotion == "sadness"
 
-    def test_emotion_color_returns_string(self):
-        from ml.emotion_classifier import EmotionClassifier
-        color = EmotionClassifier.emotion_color("joy")
-        assert color.startswith("#")
-        unknown = EmotionClassifier.emotion_color("unknown_emotion")
-        assert unknown.startswith("#")
+
+class TestHealthEndpoint:
+    def test_health_returns_ok(self):
+        from fastapi.testclient import TestClient
+        import api.main as m
+        import ml.classifier as clf_module
+
+        mock_clf = MagicMock()
+        clf_module._classifier = mock_clf
+
+        client = TestClient(m.app, raise_server_exceptions=False)
+        resp = client.get("/health")
+        assert resp.status_code == 200
