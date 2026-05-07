@@ -39,7 +39,7 @@ app = FastAPI(
 )
 
 
-# ─── Schemas ──────────────────────────────────────────────────────────────────
+# Schemas
 
 class ClassifyRequest(BaseModel):
     text: str = Field(..., min_length=1, max_length=2000)
@@ -57,7 +57,7 @@ class BatchClassifyRequest(BaseModel):
     texts: list[str] = Field(..., min_length=1, max_length=64)
 
 
-# ─── Endpoints ────────────────────────────────────────────────────────────────
+#  Endpoints 
 
 @app.get("/health")
 async def health():
