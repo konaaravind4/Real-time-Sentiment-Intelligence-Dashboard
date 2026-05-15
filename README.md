@@ -4,11 +4,11 @@ Live 8-class emotion classification across social streams using a fine-tuned **R
 
 ## Features
 
-- 🧠 **8-class emotion detection** — joy, anger, fear, surprise, sadness, disgust, contempt, neutral
-- ⚡ **Real-time WebSocket stream** — live emotion scoring with <340ms P99 latency
-- 📊 **12K msg/s throughput** — Kafka-backed stream processing
-- 🚀 **FastAPI REST + WebSocket API** — `/classify`, `/classify/batch`, `/ws/stream`
-- 📦 **Docker-ready** — one-command deployment
+-  **8-class emotion detection** — joy, anger, fear, surprise, sadness, disgust, contempt, neutral
+-  **Real-time WebSocket stream** — live emotion scoring with <340ms P99 latency
+-  **12K msg/s throughput** — Kafka-backed stream processing
+-  **FastAPI REST + WebSocket API** — `/classify`, `/classify/batch`, `/ws/stream`
+-  **Docker-ready** — one-command deployment
 
 ## Architecture
 
