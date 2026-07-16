@@ -12,7 +12,7 @@ Live 8-class emotion classification across social streams using a fine-tuned **R
 
 ---
 
-## ✨ Features
+##  Features
 
 | Feature | Description |
 |---------|-------------|
