@@ -1,4 +1,4 @@
-# Real-time Sentiment Intelligence Dashboard 🧠
+# Real-time Sentiment Intelligence Dashboard 
 
 > **Live 8-class emotion classification across social streams — now with Financial Sentiment Mode, KonaDB persistence, and Kronos market overlay integration.**
 
@@ -20,15 +20,15 @@ Live 8-class emotion classification across social streams using a fine-tuned **R
 | **Real-time WebSocket stream** | Live emotion scoring with <340ms P99 latency |
 | **12K msg/s throughput** | Kafka-backed stream processing |
 | **FastAPI REST + WebSocket** | `/classify`, `/classify/batch`, `/ws/stream` |
-| **🆕 Financial Sentiment Mode** | Bullish/bearish/neutral market signals from financial text |
-| **🆕 KonaDB Time-Series** | Persistent emotion history with windowed aggregations |
-| **🆕 Kronos Integration** | Feed market sentiment signals directly into Kronos forecasts |
-| **🆕 Alert System** | WebSocket alerts when extreme sentiment detected |
+| **Financial Sentiment Mode** | Bullish/bearish/neutral market signals from financial text |
+| **KonaDB Time-Series** | Persistent emotion history with windowed aggregations |
+| **Kronos Integration** | Feed market sentiment signals directly into Kronos forecasts |
+| **Alert System** | WebSocket alerts when extreme sentiment detected |
 | **Docker-ready** | One-command deployment |
 
 ---
 
-## 🏗️ Architecture
+##  Architecture
 
 ```
 Social API / News Feed
@@ -73,7 +73,7 @@ KonaDB Storage → Kronos Overlay → Market Forecast
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ```bash
 git clone https://github.com/konaaravind4/Real-time-Sentiment-Intelligence-Dashboard
@@ -96,7 +96,7 @@ docker run -p 8000:8000 \
 
 ---
 
-## 📡 API Reference
+## API Reference
 
 ### Emotion Classification
 
@@ -187,7 +187,7 @@ curl "http://localhost:8000/history/distribution?hours=1"
 
 ---
 
-## 📊 Emotion Classes
+## Emotion Classes
 
 | Emotion | Description | Example Text |
 |---------|-------------|--------------|
@@ -202,7 +202,7 @@ curl "http://localhost:8000/history/distribution?hours=1"
 
 ---
 
-## 💾 KonaDB Integration (New!)
+##  KonaDB Integration (New!)
 
 Emotion and financial signals are automatically persisted for historical analysis:
 
@@ -223,7 +223,7 @@ distribution = storage.emotion_distribution(hours=6)
 
 ---
 
-## 🚨 Alert System (New!)
+##  Alert System (New!)
 
 Get WebSocket alerts when extreme sentiment is detected:
 
@@ -241,7 +241,7 @@ ws = new WebSocket("ws://localhost:8000/ws/alerts");
 
 ---
 
-## 🌍 Ecosystem Integration
+##  Ecosystem Integration
 
 ```
 Real-time-Sentiment-Intelligence-Dashboard
@@ -281,7 +281,7 @@ curl -X POST http://ai-sql:8000/query \
 
 ---
 
-## 🤝 Related Projects
+##  Related Projects
 
 | Project | Integration |
 |---------|-------------|
@@ -292,6 +292,6 @@ curl -X POST http://ai-sql:8000/query \
 
 ---
 
-## 📄 License
+## License
 
 MIT © [konaaravind4](https://github.com/konaaravind4)
