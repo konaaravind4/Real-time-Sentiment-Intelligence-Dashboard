@@ -1,6 +1,5 @@
 """
 Financial Sentiment Mode for Real-time Sentiment Intelligence Dashboard
-=======================================================================
 Provides specialized financial news/social sentiment analysis optimized
 for market signal generation — integrates with Kronos financial forecasting.
 
@@ -30,10 +29,10 @@ import time
 from dataclasses import dataclass, field
 from typing import Literal
 
-# ── Signal type ───────────────────────────────────────────────────────────────
+
 Signal = Literal["bullish", "bearish", "neutral"]
 
-# ── Keyword dictionaries ──────────────────────────────────────────────────────
+
 
 BULLISH_KEYWORDS: list[tuple[str, float]] = [
     # (pattern, weight)
@@ -82,12 +81,12 @@ BEARISH_KEYWORDS: list[tuple[str, float]] = [
     (r"\bconcern\b", 0.4),
 ]
 
-# Asset ticker patterns
+
 _TICKER_RE = re.compile(r"\b(BTC|ETH|SOL|AAPL|MSFT|NVDA|TSLA|AMZN|GOOGL|META|SPY|QQQ)\b")
 _PERCENTAGE_RE = re.compile(r"([+-]?\d+\.?\d*)\s*%")
 
 
-# ── Data classes ──────────────────────────────────────────────────────────────
+
 
 @dataclass
 class FinancialSentimentResult:
@@ -132,8 +131,6 @@ class MarketSentimentSummary:
         return self.bullish_count / self.bearish_count
 
 
-# ── Analyzer ──────────────────────────────────────────────────────────────────
-
 class FinancialSentimentAnalyzer:
     """
     Fast, rule-based financial sentiment analyzer optimized for market signals.
@@ -162,7 +159,6 @@ class FinancialSentimentAnalyzer:
         """
         text_lower = text.lower()
 
-        # Score bullish signals
         bullish_score = 0.0
         matched_bullish = []
         for pattern, weight in BULLISH_KEYWORDS:
@@ -170,7 +166,7 @@ class FinancialSentimentAnalyzer:
                 bullish_score += weight
                 matched_bullish.append(pattern.replace(r"\b", "").strip("()?.*+"))
 
-        # Score bearish signals
+
         bearish_score = 0.0
         matched_bearish = []
         for pattern, weight in BEARISH_KEYWORDS:
@@ -178,15 +174,15 @@ class FinancialSentimentAnalyzer:
                 bearish_score += weight
                 matched_bearish.append(pattern.replace(r"\b", "").strip("()?.*+"))
 
-        # Normalize scores (0-1 range)
+
         max_possible = max(sum(w for _, w in BULLISH_KEYWORDS), sum(w for _, w in BEARISH_KEYWORDS))
         bull_norm = min(bullish_score / max_possible, 1.0)
         bear_norm = min(bearish_score / max_possible, 1.0)
 
-        # Net score: +1 = fully bullish, -1 = fully bearish
+
         net_score = round(bull_norm - bear_norm, 4)
 
-        # Determine signal
+
         if net_score > 0.05:
             signal: Signal = "bullish"
         elif net_score < -0.05:
@@ -194,13 +190,13 @@ class FinancialSentimentAnalyzer:
         else:
             signal = "neutral"
 
-        # Confidence = strength of the dominant signal
+
         confidence = min(abs(net_score) * 2, 1.0)
 
-        # Extract tickers
+
         tickers = list(dict.fromkeys(_TICKER_RE.findall(text.upper())))
 
-        # Extract percentage magnitude
+
         pct_matches = _PERCENTAGE_RE.findall(text)
         magnitude = float(pct_matches[0]) if pct_matches else None
 
@@ -254,7 +250,6 @@ class FinancialSentimentAnalyzer:
         else:
             dominant = "neutral"
 
-        # Top tickers by mention frequency
         ticker_counts: dict[str, int] = {}
         for r in recent:
             for t in r.tickers:
