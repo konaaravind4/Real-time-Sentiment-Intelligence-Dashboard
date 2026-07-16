@@ -1,6 +1,5 @@
 """
 KonaDB Storage Integration for Real-time Sentiment Intelligence Dashboard
-=========================================================================
 Persists classified emotion signals and financial sentiment data into KonaDB
 using the time-series module — enabling historical trend analysis and
 cross-project data sharing with Kronos and AI SQL Analyst.
